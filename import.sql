@@ -63,4 +63,21 @@ DO $$
     END
 $$ LANGUAGE plpgsql;
 
+-- As of 2024/08/26, the dataset does not include hold time at stations.
+-- Based off personal observation, the given timestamp appears to be the departure time.
+UPDATE gtfs.stop_times st
+SET arrival_time = st.arrival_time - INTERVAL '30 seconds'
+FROM (SELECT t.trip_id FROM gtfs.trips t WHERE t.route_id = '30053' OR t.route_id = '30052' OR t.route_id = '13686') t
+WHERE st.arrival_time = st.departure_time AND t.trip_id = st.trip_id;
+
+-- BRAID SINGLE-TRACK FIXES
+-- As of 2024/02/25, Expo Line is single-tracking between the Sapperton crossover & Lougheed Town Center
+-- Expected timeline of 2 years
+
+-- Outbound trains hold at LH Platform 2 for 3 minutes to sequence correctly
+UPDATE gtfs.stop_times st
+SET arrival_time = st.arrival_time - INTERVAL '2 minutes 30 seconds'
+FROM (SELECT t.trip_id FROM gtfs.trips t WHERE t.route_id = '30053') t
+WHERE st.arrival_time = st.departure_time AND t.trip_id = st.trip_id AND st.stop_id = '8746';
+
 COMMIT;
