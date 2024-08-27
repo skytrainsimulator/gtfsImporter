@@ -63,6 +63,17 @@ DO $$
     END
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION gtfs.is_skytrain_route(route_id TEXT)
+    RETURNS BOOLEAN AS $$
+SELECT route_id = '30052' OR route_id = '30053' OR route_id = '13686'
+$$ LANGUAGE SQL IMMUTABLE;
+
+-- I disagree with how Translink has entered trip names / headsigns into the dataset
+-- The headsign displayed on trains is just the terminus station. This little hack updates the data to that.
+UPDATE gtfs.trips
+SET trip_short_name = trip_headsign, trip_headsign = regexp_replace(trip_headsign, '.+To ', '')
+WHERE gtfs.is_skytrain_route(route_id);
+
 -- As of 2024/08/26, the dataset does not include hold time at stations.
 -- Based off personal observation, the given timestamp appears to be the departure time.
 UPDATE gtfs.stop_times st
