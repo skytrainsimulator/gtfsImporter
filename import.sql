@@ -1,6 +1,9 @@
+\set ON_ERROR_STOP on
+
 BEGIN;
 
 DROP SCHEMA IF EXISTS gtfs CASCADE;
+DROP FUNCTION public.gtfs_via_postgres_import_version();
 CREATE SCHEMA gtfs;
 
 \i work/import.sql
