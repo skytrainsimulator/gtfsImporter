@@ -77,6 +77,17 @@ UPDATE gtfs.trips
 SET trip_short_name = trip_headsign, trip_headsign = regexp_replace(trip_headsign, '.+To ', '')
 WHERE gtfs.is_skytrain_route(route_id);
 
+-- As of 2024/11/24, the dataset uses the incorrect stop ID for the Canada Line single-platform stations
+-- (The station is used instead of the platform)
+WITH broken_stop_ids AS ( VALUES
+    ('11294', '11295'), -- Richmond-Brighouse Station / Platform 1
+    ('11300', '11301') -- YVR-Airport Station / Platform 1
+)
+UPDATE gtfs.stop_times
+SET stop_id = broken_stop_ids.column2
+FROM broken_stop_ids
+WHERE stop_id = broken_stop_ids.column1;
+
 -- As of 2024/08/26, the dataset does not include hold time at stations.
 -- Based off personal observation, the given timestamp appears to be the departure time.
 UPDATE gtfs.stop_times st
