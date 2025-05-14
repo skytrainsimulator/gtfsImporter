@@ -203,10 +203,10 @@ WITH tmp AS (
         min(trip_start_time) AS block_start_time,
         max(trip_end_time) AS block_end_time,
         sum(trip_num_stops) AS block_num_stops,
-        array_agg(DISTINCT trip_id ORDER BY trip_id) AS trips,
-        array_agg(DISTINCT route_id ORDER BY route_id) AS routes,
-        array_agg(DISTINCT route_display ORDER BY route_display) AS routes_display,
-        array_agg(DISTINCT trip_headsign ORDER BY trip_headsign) AS headsigns
+        array_agg(trip_id ORDER BY trip_start_time) AS trips,
+        array_agg(route_id ORDER BY trip_start_time) AS routes,
+        array_agg(route_display ORDER BY trip_start_time) AS routes_display,
+        array_agg(trip_headsign ORDER BY trip_start_time) AS headsigns
     FROM gtfs_extra.all_trips
     LEFT JOIN gtfs_extra.all_routes USING (route_id)
     GROUP BY block_id, service_id
